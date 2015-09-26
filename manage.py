@@ -2,7 +2,7 @@
 # coding=utf-8
 import os
 
-from flask.ext.migrate import MigrateCommand
+from flask.ext.migrate import MigrateCommand, Migrate
 from flask.ext.script import Manager
 from flask.ext.script import Shell
 
