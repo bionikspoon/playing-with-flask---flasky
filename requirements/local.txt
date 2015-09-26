@@ -5,10 +5,12 @@
 #    pip-compile local.in
 #
 alembic==0.8.2            # via flask-migrate
+blinker==1.4              # via flask-mail
 click==5.1                # via pip-tools
 dominate==2.1.16          # via flask-bootstrap
 first==2.0.1              # via pip-tools
 flask-bootstrap==3.3.5.6
+flask-mail==0.9.1
 flask-migrate==1.6.0
 flask-moment==0.5.1
 flask-script==2.0.5
