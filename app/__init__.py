@@ -23,5 +23,7 @@ def create_app(config_name):
     mail.init_app(app)
 
     #  Routes and custom error pages goes here.
+    from .main import main as main_blueprint
+    app.register_blueprint(main_blueprint)
 
     return app
