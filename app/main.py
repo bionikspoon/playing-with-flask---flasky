@@ -8,6 +8,7 @@ from flask.ext.moment import Moment
 from flask.ext.script import Manager, Shell
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.wtf import Form
+from flask.ext.migrate import Migrate, MigrateCommand
 from wtforms import StringField, SubmitField
 from wtforms.validators import Required
 
@@ -22,6 +23,7 @@ manager = Manager(app)
 bootstrap = Bootstrap(app)
 moment = Moment(app)
 db = SQLAlchemy(app)
+migrate = Migrate(app, db)
 
 
 class Role(db.Model):
@@ -54,6 +56,8 @@ def make_shell_context():
 
 
 manager.add_command('shell', Shell(make_context=make_shell_context))
+manager.add_command('db', MigrateCommand)
+
 
 
 @app.route('/', methods=['GET', 'POST'])
