@@ -27,6 +27,5 @@ class MyTestCase(unittest.TestCase):
         self.assertTrue(current_app.config['TESTING'])
 
 
-
 if __name__ == '__main__':
     unittest.main()
