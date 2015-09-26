@@ -5,9 +5,9 @@ from datetime import datetime
 
 from flask import request, redirect, render_template, session, url_for, current_app
 
+from .. import db
 from . import main
 from .forms import NameForm
-from .. import db
 from ..email import send_email
 from ..models import User
 

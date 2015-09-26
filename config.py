@@ -4,8 +4,8 @@
 import os
 from pathlib import Path
 
-ROOT_DIR = Path('.')
-
+ROOT_DIR = Path(os.path.abspath('.'))
+print('sqlite:///%s' % (ROOT_DIR / 'db-dev.sqlite'))
 
 class Config(object):
     SECRET_KEY = os.environ.get('SECRET_KEY', 'secret')
