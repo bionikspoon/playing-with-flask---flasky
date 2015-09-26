@@ -28,7 +28,7 @@ class Role(db.Model):
     __tablename__ = 'roles'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), unique=True)
-    users = db.relationship('User', backref='role')
+    users = db.relationship('User', backref='role', lazy='dynamic')
 
     def __repr__(self):
         return '<Role %r>' % self.name
@@ -53,15 +53,21 @@ class NameForm(Form):
 def index():
     form = NameForm()
     if form.validate_on_submit():
-        old_name = session.get('name')
-        if old_name and old_name != form.name.data:
-            flash('Looks like you have changed your name!')
+        user = User.query.filter_by(username=form.name.data).first()
+        if not user:
+            user = User(username=form.name.data)
+            db.session.add(user)
+            session['known'] = False
+        else:
+            session['known'] = True
+
         session['name'], form.name.data = form.name.data, ''
 
         return redirect(url_for('index'))
     user_agent = request.headers.get('User-Agent')
-    return render_template('index.html', user_agent=user_agent, current_time=datetime.utcnow(),
-                           form=form, name=session.get('name', 'Stranger'))
+    context = dict(user_agent=user_agent, current_time=datetime.utcnow(), form=form,
+                   name=session.get('name', 'Stranger'), known=session.get('known', False))
+    return render_template('index.html', **context)
 
 
 @app.errorhandler(404)
