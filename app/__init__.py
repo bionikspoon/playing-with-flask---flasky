@@ -2,11 +2,10 @@ from flask import Flask
 from flask.ext.bootstrap import Bootstrap
 from flask.ext.mail import Mail
 from flask.ext.moment import Moment
-from flask.ext.script import Manager
 from flask.ext.sqlalchemy import SQLAlchemy
+
 from config import config
 
-manager = Manager()
 bootstrap = Bootstrap()
 moment = Moment()
 db = SQLAlchemy()
