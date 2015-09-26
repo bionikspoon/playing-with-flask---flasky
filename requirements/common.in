@@ -1,8 +1,9 @@
-Flask
-Flask-Bootstrap
-Flask-Moment
-Flask-Script
-Flask-WTF
+flask
+flask-bootstrap
+flask-moment
+flask-script
+flask-wtf
 flask-sqlalchemy
+flask-migrate
 
 pip-tools
