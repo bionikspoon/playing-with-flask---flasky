@@ -4,8 +4,9 @@
 from flask import render_template, redirect, request, url_for, flash
 from flask.ext.login import login_user, login_required, logout_user
 
+from .. import db
 from . import auth
-from .forms import LoginForm
+from .forms import LoginForm, RegistrationForm
 from ..models import User
 
 
@@ -20,6 +21,19 @@ def login():
             return redirect(request.args.get('next') or url_for('main.index'))
         flash('Invalid username or password.')
     return render_template('auth/login.html', form=form)
+
+
+@auth.route('/register', methods=['GET', 'POST'])
+def register():
+    form = RegistrationForm()
+    if form.validate_on_submit():
+        # noinspection PyArgumentList
+        user = User(email=form.email.data, username=form.username.data, password=form.password.data)
+        db.session.add(user)
+        flash('Welcome %s!  You can now login.' % user.username)
+        return redirect(url_for('auth.login'))
+
+    return render_template('auth/registration.html', form=form)
 
 
 @auth.route('/logout')
