@@ -3,7 +3,7 @@
 
 from datetime import datetime
 from flask import request, redirect, render_template, session, url_for, current_app
-from flask.ext.login import login_required
+from flask.ext.login import login_required, current_user
 
 from .. import db
 from . import main
@@ -30,8 +30,9 @@ def index():
 
         return redirect(url_for('.index'))
     user_agent = request.headers.get('User-Agent')
-    context = dict(user_agent=user_agent, current_time=datetime.utcnow(), form=form,
-                   name=session.get('name', 'Stranger'), known=session.get('known', False))
+    name = 'Stranger' if not current_user.is_authenticated else current_user.username
+    context = dict(user_agent=user_agent, current_time=datetime.utcnow(), form=form, name=name,
+                   known=session.get('known', False))
     return render_template('index.html', **context)
 
 
