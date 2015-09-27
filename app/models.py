@@ -3,9 +3,8 @@
 
 from flask import current_app
 from flask.ext.login import UserMixin
-from itsdangerous import TimedJSONWebSignatureSerializer as Serializer, SignatureExpired
+from itsdangerous import TimedJSONWebSignatureSerializer as Serializer, SignatureExpired, BadSignature
 from werkzeug.security import generate_password_hash, check_password_hash
-
 from . import db, login_manager
 
 
@@ -51,7 +50,7 @@ class User(UserMixin, db.Model):
         s = Serializer(current_app.config['SECRET_KEY'])
         try:
             data = s.loads(token)
-        except SignatureExpired:
+        except (SignatureExpired, BadSignature):
             return False
         if data.get('confirm') != self.id:
             return False

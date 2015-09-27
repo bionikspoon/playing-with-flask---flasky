@@ -1,0 +1,472 @@
+
+// Config -----------------------------------
+@syntax-hue:          220;
+@syntax-saturation:   13%;
+@syntax-brightness:   18%;
+
+// Base colors -----------------------------------
+@syntax-accent: hsl(220, 100%, 66% );
+@syntax-guide:  fade(hsl(219, 13%, 70%), 15%);
+@syntax-bg:     hsl(220, 13%, 18%);
+
+// Monochrome -----------------------------------
+@mono-1: hsl(220, 14%, 71%); // default text
+@mono-2: hsl(220,  9%, 55%);
+@mono-3: hsl(219, 9%, 40%);
+
+// Colors -----------------------------------
+@hue-1: hsl(186, 46%, 54%); // <-cyan
+@hue-2: hsl(206, 81%, 64%); // <-blue
+@hue-3: hsl(286, 58%, 65%); // <-purple
+@hue-4: hsl(93, 37%, 60%); // <-green
+
+@hue-5: hsl(355, 65%, 65%); // <-red 1
+@hue-5-2: hsl(5, 48%, 50%); // <-red 2
+
+@hue-6: hsl(27, 51%, 60%); // <-orange 1
+@hue-6-2: hsl(39, 67%, 69%); // <-orange 2
+
+// Official Syntax Variables -----------------------------------
+
+// General colors
+@syntax-text-color: hsl(217, 12%, 70%);
+@syntax-cursor-color:          @syntax-accent;
+@syntax-selection-color:       lighten(#282C34, 10%);
+@syntax-selection-flash-color: @syntax-accent;
+@syntax-background-color:      @syntax-bg;
+
+// Guide colors
+@syntax-wrap-guide-color:          @syntax-guide;
+@syntax-indent-guide-color:        @syntax-guide;
+@syntax-invisible-character-color: @syntax-guide;
+
+// For find and replace markers
+@syntax-result-marker-color:          hsl(220, 14%, 71%);
+@syntax-result-marker-color-selected: @syntax-accent;
+
+// Gutter colors
+@syntax-gutter-text-color:                darken(hsl(220, 14%, 71%), 26%);
+@syntax-gutter-text-color-selected:       hsl(220, 14%, 71%);
+@syntax-gutter-background-color:          @syntax-bg; // unused
+@syntax-gutter-background-color-selected: lighten(@syntax-bg, 2%);
+
+// Git colors - For git diff info. i.e. in the gutter
+@syntax-color-renamed:  hsl(208, 100%, 60%);
+@syntax-color-added:    hsl(150,  60%, 54%);
+@syntax-color-modified: hsl(40, 59%, 70%);
+@syntax-color-removed: hsl(0, 68%, 60%);
+
+// For language entity colors
+@syntax-color-variable:   @hue-5;
+@syntax-color-constant:   @hue-6;
+@syntax-color-property:   hsl(220, 14%, 71%);
+@syntax-color-value: hsl(219, 13%, 70%);
+@syntax-color-function:   @hue-2;
+@syntax-color-method:     @hue-2;
+@syntax-color-class:      @hue-6-2;
+@syntax-color-keyword:    @hue-3;
+@syntax-color-tag:        @hue-5;
+@syntax-color-attribute:  @hue-6;
+@syntax-color-import:     @hue-3;
+@syntax-color-snippet:    @hue-4;
+
+
+// Custom Syntax Variables -----------------------------------
+// Don't use in packages
+
+@syntax-cursor-line: hsla(220, 100%,  80%, .04); // needs to be semi-transparent to show serach results
+
+@syntax-deprecated-fg: darken(@syntax-color-modified, 50%);
+@syntax-deprecated-bg: @syntax-color-modified;
+@syntax-illegal-fg:    white;
+@syntax-illegal-bg:    @syntax-color-removed;
+
+// Language syntax highlighting
+
+.comment {
+  color: @mono-3;
+  font-style: italic;
+}
+
+.entity {
+
+  &.name.type {
+    color: @hue-6-2;
+  }
+
+  &.other.inherited-class {
+    color: @hue-4;
+  }
+}
+
+.keyword {
+  color: @hue-3;
+
+  &.control {
+    color: @hue-3;
+  }
+
+  &.operator {
+    color: @mono-1;
+  }
+
+  &.other.special-method {
+    color: @hue-2;
+  }
+
+  &.other.unit {
+    color: @hue-6;
+  }
+}
+
+.storage {
+  color: @hue-3;
+
+  &.type {
+    &.annotation,
+    &.primitive {
+      color: @hue-3;
+    }
+  }
+
+  &.modifier {
+    &.package,
+    &.import {
+      color: @mono-1;
+    }
+  }
+}
+
+.constant {
+  color: @hue-6;
+
+  &.variable {
+    color: @hue-6;
+  }
+
+  &.character.escape {
+    color: @hue-1;
+  }
+
+  &.numeric {
+    color: @hue-6;
+  }
+
+  &.other.color {
+    color: @hue-1;
+  }
+
+  &.other.symbol {
+    color: @hue-1;
+  }
+}
+
+.variable {
+  color: @hue-5;
+
+  &.interpolation {
+    color: @hue-5-2;
+  }
+
+  &.parameter {
+    color: @mono-1;
+  }
+}
+
+.string {
+  color: @hue-4;
+
+
+  &.regexp {
+    color: @hue-1;
+
+    .source.ruby.embedded {
+      color: @hue-6-2;
+    }
+  }
+
+  &.other.link {
+    color: @hue-5;
+  }
+}
+
+.punctuation {
+  &.definition {
+    &.comment {
+      color: @mono-3;
+    }
+
+    &.method-parameters,
+    &.function-parameters,
+    &.parameters,
+    &.separator,
+    &.seperator,
+    &.array {
+      color: @mono-1;
+    }
+
+    &.heading,
+    &.identity {
+      color: @hue-2;
+    }
+
+    &.bold {
+      color: @hue-6-2;
+      font-weight: bold;
+    }
+
+    &.italic {
+      color: @hue-3;
+      font-style: italic;
+    }
+  }
+
+  &.section {
+    &.embedded {
+      color: @hue-5-2;
+    }
+
+    &.method,
+    &.class,
+    &.inner-class {
+      color: @mono-1;
+    }
+  }
+}
+
+.support {
+  &.class {
+    color: @hue-6-2;
+  }
+
+  &.type {
+    color: @hue-1;
+  }
+
+  &.function  {
+    color: @hue-1;
+
+    &.any-method {
+      color: @hue-2;
+    }
+  }
+}
+
+.entity {
+  &.name.function {
+    color: @hue-2;
+  }
+
+  &.name.class,
+  &.name.type.class {
+    color: @hue-6-2;
+  }
+
+  &.name.section {
+    color: @hue-2;
+  }
+
+  &.name.tag {
+    color: @hue-5;
+  }
+
+  &.other.attribute-name {
+    color: @hue-6;
+
+    &.id {
+      color: @hue-2;
+    }
+  }
+}
+
+.meta {
+  &.class {
+    color: @hue-6-2;
+
+    &.body {
+      color: @mono-1;
+    }
+  }
+
+  &.method-call,
+  &.method {
+    color: @mono-1;
+  }
+
+  &.definition {
+    &.variable {
+      color: @hue-5;
+    }
+  }
+
+  &.link {
+    color: @hue-6;
+  }
+
+  &.require {
+    color: @hue-2;
+  }
+
+  &.selector {
+    color: @hue-3;
+  }
+
+  &.separator {
+    background-color: #373b41;
+    color: @mono-1;
+  }
+
+  &.tag {
+    color: @mono-1;
+  }
+}
+
+.none {
+  color: @mono-1;
+}
+
+.invalid {
+  &.deprecated {
+    color: @syntax-deprecated-fg !important;
+    background-color: @syntax-deprecated-bg !important;
+  }
+  &.illegal {
+    color: @syntax-illegal-fg !important;
+    background-color: @syntax-illegal-bg !important;
+  }
+}
+
+// Languages -------------------------------------------------
+
+.markup {
+  &.bold {
+    color: @hue-6;
+    font-weight: bold;
+  }
+
+  &.changed {
+    color: @hue-3;
+  }
+
+  &.deleted {
+    color: @hue-5;
+  }
+
+  &.italic {
+    color: @hue-3;
+    font-style: italic;
+  }
+
+  &.heading .punctuation.definition.heading {
+    color: @hue-2;
+  }
+
+  &.inserted {
+    color: @hue-4;
+  }
+
+  &.list {
+    color: @hue-5;
+  }
+
+  &.quote {
+    color: @hue-6;
+  }
+
+  &.raw {
+    color: @hue-4;
+  }
+}
+
+
+// Editor styles (background, gutter, guides)
+
+atom-text-editor, // <- remove when Shadow DOM can't be disabled
+:host {
+  background-color: @syntax-background-color;
+  color: @syntax-text-color;
+
+  .line.cursor-line {
+    background-color: @syntax-cursor-line;
+  }
+
+  .invisible {
+    color: @syntax-text-color;
+  }
+
+  .cursor {
+    border-left: 2px solid @syntax-cursor-color;
+  }
+
+  .selection .region {
+    background-color: @syntax-selection-color;
+  }
+
+  .bracket-matcher .region {
+    border-bottom: 1px solid @syntax-cursor-color;
+    box-sizing: border-box;
+  }
+
+  .invisible-character {
+    color: @syntax-invisible-character-color;
+  }
+
+  .indent-guide {
+    color: @syntax-indent-guide-color;
+  }
+
+  .wrap-guide {
+    background-color: @syntax-wrap-guide-color;
+  }
+
+  .gutter {
+
+    .line-number {
+      color: @syntax-gutter-text-color;
+      -webkit-font-smoothing: antialiased;
+
+      &.cursor-line {
+        color: @syntax-gutter-text-color-selected;
+        background-color: @syntax-gutter-background-color-selected;
+      }
+      &.cursor-line-no-selection {
+        background-color: transparent;
+      }
+
+      .icon-right {
+        color: @syntax-text-color;
+      }
+    }
+
+    &:not(.git-diff-icon) .line-number.git-line-removed {
+      &.git-line-removed::before {
+        bottom: -3px;
+      }
+      &::after {
+        content: "";
+        position: absolute;
+        left: 0px;
+        bottom: 0px;
+        width: 25px;
+        border-bottom: 1px dotted fade(@syntax-color-removed, 50%);
+        pointer-events: none;
+      }
+    }
+  }
+
+  .gutter .line-number.folded,
+  .gutter .line-number:after,
+  .fold-marker:after {
+    color: @syntax-gutter-text-color-selected;
+  }
+}
+
+.source.python {
+  .keyword.operator.logical.python {
+    color: @hue-3;
+  }
+
+  .variable.parameter {
+    color: @hue-6;
+  }
+}
