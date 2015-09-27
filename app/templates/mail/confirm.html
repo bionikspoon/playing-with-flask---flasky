@@ -1,0 +1,13 @@
+{% extends 'mail/base.html' %}
+
+{% block content %}
+   <p> Dear {{ user.username }}, </p>
+   <p> Welcome to Flasky! </p>
+
+   <p> To confirm your account please click on the following link:
+      <a href="{{ url_for('auth.confirm', token=token, _external=True) }}">Confirm email.</a></p>
+   <p> Sincerely, </p>
+   <p> The Flasky Team </p>
+
+   <p> Note: replies to this email address are not monitored. </p>
+{% endblock content %}
