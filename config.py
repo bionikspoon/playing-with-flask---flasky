@@ -6,12 +6,18 @@ from pathlib import Path
 
 ROOT_DIR = Path(os.path.abspath('.'))
 
+
 class Config(object):
-    SECRET_KEY = os.environ.get('SECRET_KEY', 'secret')
+    SECRET_KEY = os.environ.get('SECRET_KEY') or 'secret'
+
     SQLALCHEMY_COMMIT_ON_TEARDOWN = True
     SQLALCHEMY_DATABASE_URI = NotImplemented
-    MAIL_HOSTNAME = NotImplemented
-    MAIL_PORT = NotImplemented
+
+    MAIL_HOSTNAME = 'localhost'
+    MAIL_PORT = 1025
+
+    WTF_CSRF_ENABLED = NotImplemented
+
     FLASKY_MAIL_SUBJECT_PREFIX = '[Flasky]'
     FLASKY_MAIL_SENDER = 'Flasky Admin <no-reply@flasky.com>'
     FLASKY_ADMIN = 'Manu Phatak <admin@flasky.com>'
@@ -23,9 +29,8 @@ class Config(object):
 
 class DevelopmentConfig(Config):
     DEBUG = True
-    MAIL_HOSTNAME = 'localhost'
-    MAIL_PORT = 1025
     SQLALCHEMY_DATABASE_URI = 'sqlite:///%s' % (ROOT_DIR / 'db-dev.sqlite')
+    WTF_CSRF_ENABLED = False
 
 
 class TestingConfig(Config):

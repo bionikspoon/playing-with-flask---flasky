@@ -29,6 +29,14 @@
             <ul class="nav navbar-nav">
                <li><a href="/">Home</a></li>
             </ul>
+            <ul class="nav navbar-nav navbar-right">
+               {% if current_user.is_authenticated %}
+                  <li><a href="{{ url_for('auth.logout') }}">Sign Out</a></li>
+               {% else %}
+                  <li><a href="{{ url_for('auth.login') }}">Sign In</a></li>
+               {% endif %}
+
+            </ul>
          </div>
       </div>
    </div>
@@ -44,8 +52,11 @@
          </div>
       {% endfor %}
 
-      {% block page_header %}
-      {% endblock page_header %}
+      <div class="page-header">
+         {% block page_header %}
+         {% endblock page_header %}
+      </div>
+
 
       {% block page_content %}
       {% endblock page_content %}

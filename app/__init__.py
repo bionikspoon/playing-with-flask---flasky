@@ -4,6 +4,7 @@ from flask.ext.login import LoginManager
 from flask.ext.mail import Mail
 from flask.ext.moment import Moment
 from flask.ext.sqlalchemy import SQLAlchemy
+from flask.ext.wtf import CsrfProtect
 
 from config import config
 
