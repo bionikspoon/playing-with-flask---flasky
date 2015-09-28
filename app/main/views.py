@@ -2,16 +2,14 @@
 # coding=utf-8
 
 from datetime import datetime
-
 from flask import (request, redirect, render_template, session, url_for, current_app, abort, flash)
 from flask.ext.login import login_required, current_user
-
 from . import main
-from .forms import NameForm, EditProfileForm, EditProfileAdminForm
+from .forms import NameForm, EditProfileForm, EditProfileAdminForm, PostForm
 from .. import db
 from ..decorators import admin_required, permission_required
 from ..email import send_email
-from ..models import User, Permission, Role
+from ..models import User, Permission, Role, Post
 
 
 @main.app_context_processor
@@ -21,26 +19,34 @@ def inject_permissions():
 
 @main.route('/', methods=['GET', 'POST'])
 def index():
-    form = NameForm()
-    if form.validate_on_submit():
-        user = User.query.filter_by(username=form.name.data).first()
-        if not user:
-            user = User(username=form.name.data)
-            db.session.add(user)
-            session['known'] = False
-            if current_app.config['FLASKY_ADMIN']:
-                send_email(current_app.config['FLASKY_ADMIN'], 'New User', 'mail/new_user', user=user)
-        else:
-            session['known'] = True
-
-        session['name'], form.name.data = form.name.data, ''
-
+    # form = NameForm()
+    # if form.validate_on_submit():
+    #     user = User.query.filter_by(username=form.name.data).first()
+    #     if not user:
+    #         user = User(username=form.name.data)
+    #         db.session.add(user)
+    #         session['known'] = False
+    #         if current_app.config['FLASKY_ADMIN']:
+    #             send_email(current_app.config['FLASKY_ADMIN'], 'New User', 'mail/new_user', user=user)
+    #     else:
+    #         session['known'] = True
+    #
+    #     session['name'], form.name.data = form.name.data, ''
+    #
+    #     return redirect(url_for('.index'))
+    # user_agent = request.headers.get('User-Agent')
+    # name = 'Stranger' if not current_user.is_authenticated else current_user.username
+    # context = dict(user_agent=user_agent, current_time=datetime.utcnow(), form=form, name=name,
+    #                known=session.get('known', False))
+    # return render_template('index.html', **context)
+    form = PostForm()
+    if current_user.can(Permission.WRITE_ARTICLES) and form.validate_on_submit():
+        post = Post(body=form.body.data, author=current_user._get_current_object())
+        db.session.add(post)
         return redirect(url_for('.index'))
-    user_agent = request.headers.get('User-Agent')
-    name = 'Stranger' if not current_user.is_authenticated else current_user.username
-    context = dict(user_agent=user_agent, current_time=datetime.utcnow(), form=form, name=name,
-                   known=session.get('known', False))
-    return render_template('index.html', **context)
+    posts = Post.query.order_by(Post.timestamp.desc()).all()
+    name = 'Stranger' if not current_user.is_authenticated else (current_user.name or current_user.username)
+    return render_template('index.html', form=form, posts=posts, name=name)
 
 
 @main.route('/user/<username>')

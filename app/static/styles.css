@@ -1,7 +1,29 @@
-.profile__thumbnail {
-  position: absolute; }
-.profile__header {
+.profile-header {
   min-height: 260px;
   margin-left: 280px; }
+
+.profile-thumbnail {
+  position: absolute; }
+
+.posts {
+  list-style-type: none;
+  padding: 0;
+  margin: 16px 0 0 0;
+  border-top: 1px solid #e0e0e0; }
+
+.post {
+  padding: 8px;
+  border-bottom: 1px solid #e0e0e0; }
+  .post:hover {
+    background-color: #f0f0f0; }
+  .post__date {
+    float: right; }
+  .post__author {
+    font-weight: bold; }
+  .post__thumbnail {
+    position: absolute; }
+  .post--content {
+    margin-left: 48px;
+    min-height: 48px; }
 
 /*# sourceMappingURL=styles.css.map */

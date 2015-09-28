@@ -66,6 +66,8 @@ class User(UserMixin, db.Model):
     last_seen = db.Column(db.DateTime(), default=datetime.utcnow)
     avatar_hash = db.Column(db.String(32))
 
+    posts = db.relationship('Post', backref='author', lazy='dynamic')
+
     def __repr__(self):
         return '<User %r>' % self.username
 
@@ -172,6 +174,14 @@ class User(UserMixin, db.Model):
         email_hash = self.avatar_hash or hashlib.md5(self.email.encode('utf-8')).hexdigest()
         template = '{prefix}{url}/{email_hash}?s={size}&d={default}&r={rating}'
         return template.format(prefix=prefix, url=url, email_hash=email_hash, size=size, default=default, rating=rating)
+
+
+class Post(db.Model):
+    __tablename__ = 'posts'
+    id = db.Column(db.Integer, primary_key=True)
+    body = db.Column(db.Text)
+    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+    author_id = db.Column(db.Integer, db.ForeignKey('users.id'))
 
 
 class AnonymousUser(AnonymousUserMixin):
