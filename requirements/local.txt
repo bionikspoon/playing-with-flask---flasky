@@ -19,6 +19,7 @@ flask-script==2.0.5
 flask-sqlalchemy==2.0
 flask-wtf==0.12
 flask==0.10.1
+forgerypy==0.1
 ipykernel==4.0.3          # via ipywidgets, jupyter, jupyter-console, notebook, qtconsole
 ipython-genutils==0.1.0   # via nbformat, notebook, traitlets
 ipython==4.0.0            # via ipykernel, ipywidgets, jupyter-console

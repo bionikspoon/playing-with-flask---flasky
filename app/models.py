@@ -3,6 +3,7 @@
 
 import hashlib
 from datetime import datetime
+from random import randint
 
 from flask import current_app, request
 from flask.ext.login import UserMixin, AnonymousUserMixin
@@ -175,6 +176,24 @@ class User(UserMixin, db.Model):
         template = '{prefix}{url}/{email_hash}?s={size}&d={default}&r={rating}'
         return template.format(prefix=prefix, url=url, email_hash=email_hash, size=size, default=default, rating=rating)
 
+    @staticmethod
+    def generate_fake(count=100):
+        from sqlalchemy.exc import IntegrityError
+        from random import seed
+        import forgery_py
+
+        seed()
+        for i in range(count):
+            user = User(email=forgery_py.internet.email_address(),
+                        username=forgery_py.internet.user_name(with_num=True), password='secret', confirmed=True,
+                        name=forgery_py.name.full_name(), location=forgery_py.address.city(),
+                        about_me=forgery_py.lorem_ipsum.sentence(), member_since=forgery_py.date.date(past=True))
+            db.session.add(user)
+            try:
+                db.session.commit()
+            except IntegrityError:
+                db.session.rollback()
+
 
 class Post(db.Model):
     __tablename__ = 'posts'
@@ -182,6 +201,20 @@ class Post(db.Model):
     body = db.Column(db.Text)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     author_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+
+    @staticmethod
+    def generate_fake(count=100):
+        from random import seed
+        import forgery_py
+
+        seed()
+        user_count = User.query.count()
+        for i in range(count):
+            user = User.query.offset(randint(0, user_count - 1)).first()
+            post = Post(body=forgery_py.lorem_ipsum.sentences(quantity=randint(1, 5)),
+                        timestamp=forgery_py.date.date(past=True), author=user)
+            db.session.add(post)
+            db.session.commit()
 
 
 class AnonymousUser(AnonymousUserMixin):
