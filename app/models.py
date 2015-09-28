@@ -156,6 +156,10 @@ class User(UserMixin, db.Model):
     def is_admin(self):
         return self.can(Permission.ADMIN)
 
+    def ping(self):
+        self.last_seen = datetime.utcnow()
+        db.session.add(self)
+
 
 class AnonymousUser(AnonymousUserMixin):
     is_admin = False

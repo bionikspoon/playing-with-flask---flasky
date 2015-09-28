@@ -14,6 +14,11 @@ from ..email import send_email
 from ..models import User, Permission
 
 
+@main.app_context_processor
+def inject_permissions():
+    return dict(Permission=Permission)
+
+
 @main.route('/', methods=['GET', 'POST'])
 def index():
     form = NameForm()
@@ -56,8 +61,3 @@ def admin():
 @permission_required(Permission.MODERATE_COMMENTS)
 def moderator():
     return 'Only moderators'
-
-
-@main.app_context_processor
-def inject_permissions():
-    return dict(Permission=Permission)
