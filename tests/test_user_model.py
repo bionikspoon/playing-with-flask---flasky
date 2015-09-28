@@ -3,18 +3,17 @@
 
 import time
 import unittest
-
 from app import create_app, db
 from app.models import User
 
 
-# noinspection PyArgumentList
 class UserModelTestCase(unittest.TestCase):
     def setUp(self):
         self.app = create_app('testing')
         self.app_context = self.app.app_context()
         self.app_context.push()
         db.create_all()
+        # noinspection PyArgumentList
         self.user = User(password='secret')
 
     def tearDown(self):
@@ -35,7 +34,9 @@ class UserModelTestCase(unittest.TestCase):
         self.assertFalse(self.user.verify_password('not_secret'))
 
     def test_password_salts_are_random(self):
+        # noinspection PyArgumentList
         user1 = User(password='secret')
+        # noinspection PyArgumentList
         user2 = User(password='secret')
         self.assertNotEqual(user1.password_hash, user2.password_hash)
 
@@ -46,7 +47,9 @@ class UserModelTestCase(unittest.TestCase):
         self.assertTrue(self.user.confirm(token))
 
     def test_invalid_confirmation_token(self):
+        # noinspection PyArgumentList
         user1 = User(password='secret')
+        # noinspection PyArgumentList
         user2 = User(password='secret')
         db.session.add_all([user1, user2])
         db.session.commit()
@@ -65,17 +68,21 @@ class UserModelTestCase(unittest.TestCase):
         db.session.add(self.user)
         db.session.commit()
 
-        # token = self.user.generate_confirmation_token()
-        # self.assertTrue(self.user.confirm(token))
+        token = self.user.generate_reset_token()
+        self.assertTrue(self.user.reset_password(token, 'new secret'))
+        self.assertTrue(self.user.verify_password('new secret'))
 
     def test_invalid_reset_token(self):
+        # noinspection PyArgumentList
         user1 = User(password='secret')
+        # noinspection PyArgumentList
         user2 = User(password='secret')
         db.session.add_all([user1, user2])
         db.session.commit()
 
-        # token = user1.generate_confirmation_token()
-        # self.assertFalse(user2.confirm(token))
+        token = user1.generate_reset_token()
+        self.assertFalse(user2.reset_password(token, 'new secret'))
+        self.assertTrue(user2.verify_password('secret'))
 
     def test_valid_email_change_token(self):
         db.session.add(self.user)
@@ -85,7 +92,9 @@ class UserModelTestCase(unittest.TestCase):
         # self.assertTrue(self.user.confirm(token))
 
     def test_invalid_email_change_token(self):
+        # noinspection PyArgumentList
         user1 = User(password='secret')
+        # noinspection PyArgumentList
         user2 = User(password='secret')
         db.session.add_all([user1, user2])
         db.session.commit()
