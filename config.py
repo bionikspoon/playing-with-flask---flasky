@@ -7,6 +7,7 @@ from pathlib import Path
 ROOT_DIR = Path(os.path.abspath('.'))
 
 
+# noinspection PyPep8Naming
 class Config(object):
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'secret'
 
@@ -21,6 +22,7 @@ class Config(object):
     FLASKY_MAIL_SUBJECT_PREFIX = '[Flasky]'
     FLASKY_MAIL_SENDER = 'Flasky Admin <no-reply@flasky.com>'
     FLASKY_ADMIN = 'Manu Phatak <admin@flasky.com>'
+    FLASKY_ADMIN_EMAIL = 'admin@flasky.com'
 
     @staticmethod
     def init_app(app):

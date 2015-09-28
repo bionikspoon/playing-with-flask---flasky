@@ -3,8 +3,9 @@
 
 import time
 import unittest
+
 from app import create_app, db
-from app.models import User
+from app.models import User, Role, Permission, AnonymousUser
 
 
 class UserModelTestCase(unittest.TestCase):
@@ -13,7 +14,7 @@ class UserModelTestCase(unittest.TestCase):
         self.app_context = self.app.app_context()
         self.app_context.push()
         db.create_all()
-        # noinspection PyArgumentList
+        Role.insert_roles()
         self.user = User(password='secret')
 
     def tearDown(self):
@@ -34,9 +35,7 @@ class UserModelTestCase(unittest.TestCase):
         self.assertFalse(self.user.verify_password('not_secret'))
 
     def test_password_salts_are_random(self):
-        # noinspection PyArgumentList
         user1 = User(password='secret')
-        # noinspection PyArgumentList
         user2 = User(password='secret')
         self.assertNotEqual(user1.password_hash, user2.password_hash)
 
@@ -47,9 +46,7 @@ class UserModelTestCase(unittest.TestCase):
         self.assertTrue(self.user.confirm(token))
 
     def test_invalid_confirmation_token(self):
-        # noinspection PyArgumentList
         user1 = User(password='secret')
-        # noinspection PyArgumentList
         user2 = User(password='secret')
         db.session.add_all([user1, user2])
         db.session.commit()
@@ -73,9 +70,7 @@ class UserModelTestCase(unittest.TestCase):
         self.assertTrue(self.user.verify_password('new secret'))
 
     def test_invalid_reset_token(self):
-        # noinspection PyArgumentList
         user1 = User(password='secret')
-        # noinspection PyArgumentList
         user2 = User(password='secret')
         db.session.add_all([user1, user2])
         db.session.commit()
@@ -93,9 +88,7 @@ class UserModelTestCase(unittest.TestCase):
         self.assertEqual(self.user.email, 'test@test.com')
 
     def test_invalid_email_change_token(self):
-        # noinspection PyArgumentList
         user1 = User(email='user1@test.com', password='secret')
-        # noinspection PyArgumentList
         user2 = User(email='user2@test.com', password='secret')
         db.session.add_all([user1, user2])
         db.session.commit()
@@ -105,9 +98,7 @@ class UserModelTestCase(unittest.TestCase):
         self.assertEqual(user2.email, 'user2@test.com')
 
     def test_duplicate_email_change_token(self):
-        # noinspection PyArgumentList
         user1 = User(email='user1@test.com', password='secret')
-        # noinspection PyArgumentList
         user2 = User(email='user2@test.com', password='secret')
         db.session.add_all([user1, user2])
         db.session.commit()
@@ -115,6 +106,22 @@ class UserModelTestCase(unittest.TestCase):
         token = user2.generate_email_token('user1@test.com')
         self.assertFalse(user2.change_email(token))
         self.assertEqual(user2.email, 'user2@test.com')
+
+    def test_roles_and_permissions(self):
+        self.assertTrue(self.user.can(Permission.WRITE_ARTICLES))
+        self.assertFalse(self.user.can(Permission.MODERATE_COMMENTS))
+
+    def test_anonymous_user(self):
+        user = AnonymousUser()
+        self.assertFalse(user.can(Permission.FOLLOW))
+        self.assertFalse(user.can(Permission.ADMIN))
+
+    def test_admin_user_can_admin(self):
+        admin_role = Role.query.filter_by(permissions=0xff).first()
+        self.user.role = admin_role
+
+        self.assertTrue(self.user.can(Permission.ADMIN))
+        self.assertTrue(self.user.is_admin)
 
 
 if __name__ == '__main__':
