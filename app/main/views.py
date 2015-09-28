@@ -2,14 +2,16 @@
 # coding=utf-8
 
 from datetime import datetime
+
 from flask import request, redirect, render_template, session, url_for, current_app
 from flask.ext.login import login_required, current_user
 
-from .. import db
 from . import main
 from .forms import NameForm
+from .. import db
+from ..decorators import admin_required, permission_required
 from ..email import send_email
-from ..models import User
+from ..models import User, Permission
 
 
 @main.route('/', methods=['GET', 'POST'])
@@ -40,3 +42,22 @@ def index():
 @login_required
 def secret():
     return 'Only authenticated users are allowed!'
+
+
+@main.route('/admin')
+@login_required
+@admin_required
+def admin():
+    return 'Only admins.'
+
+
+@main.route('/moderator')
+@login_required
+@permission_required(Permission.MODERATE_COMMENTS)
+def moderator():
+    return 'Only moderators'
+
+
+@main.app_context_processor
+def inject_permissions():
+    return dict(Permission=Permission)

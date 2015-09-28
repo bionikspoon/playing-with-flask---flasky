@@ -1,17 +1,12 @@
 #!/usr/bin/env python
 # coding=utf-8
 
-import re
-
 from flask import current_app
 from flask.ext.login import UserMixin, AnonymousUserMixin
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer, SignatureExpired, BadSignature
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from . import db, login_manager
-
-_re_admin_email = re.compile(r'<(.+)>$')
-admin_email = _re_admin_email.search(current_app.config['FLASKY_ADMIN']).group(1)
 
 
 class Permission(object):
@@ -68,7 +63,7 @@ class User(UserMixin, db.Model):
         # noinspection PyArgumentList
         super().__init__(**kwargs)
         if self.role is None:
-            if self.email == admin_email:
+            if self.email == current_app.config['FLASKY_ADMIN_EMAIL']:
                 self.role = Role.query.filter_by(permissions=0xff).first()
             if self.role is None:
                 self.role = Role.query.filter_by(default=True).first()
