@@ -5,6 +5,7 @@ from flask.ext.wtf import Form
 from wtforms import StringField, PasswordField, BooleanField, SubmitField, ValidationError
 from wtforms.fields.html5 import EmailField
 from wtforms.validators import DataRequired, Length, Email, Regexp, EqualTo
+
 from app.models import User
 
 
@@ -49,3 +50,19 @@ class ChangePasswordForm(Form):
     def validate_password(self, field):
         if field.data == self.password_old.data:
             raise ValidationError('New password must not equal old password.')
+
+
+class PasswordResetRequestForm(Form):
+    email = StringField('Email', validators=[DataRequired(), Length(1, 64), Email()])
+    submit = SubmitField('Reset Password')
+
+
+class PasswordResetForm(Form):
+    email = EmailField('Email', validators=[DataRequired(), Length(1, 64), Email()])
+    password = PasswordField('Password', validators=[DataRequired(), password_equals_confirm])
+    password_confirm = PasswordField('Confirm Password', validators=[DataRequired()])
+    submit = SubmitField('Register')
+
+    def validate_email(self, field):
+        if not User.query.filter_by(email=field.data).first():
+            raise ValidationError('Unknown email address.')
