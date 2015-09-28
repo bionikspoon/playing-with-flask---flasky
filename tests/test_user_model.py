@@ -3,7 +3,6 @@
 
 import time
 import unittest
-
 from app import create_app, db
 from app.models import User, Role, Permission, AnonymousUser
 
@@ -122,6 +121,25 @@ class UserModelTestCase(unittest.TestCase):
 
         self.assertTrue(self.user.can(Permission.ADMIN))
         self.assertTrue(self.user.is_admin)
+
+    def test_gravatar(self):
+        self.user.email = 'test@test.com'
+
+        with self.app.test_request_context('/'):
+            gravatar = self.user.gravatar()
+            gravatar_256 = self.user.gravatar(size=256)
+            gravatar_pg = self.user.gravatar(rating='pg')
+            gravatar_retro = self.user.gravatar(default='retro')
+
+        with self.app.test_request_context('/', base_url='https://example.com'):
+            gravatar_ssl = self.user.gravatar()
+
+        hashed_email = 'b642b4217b34b1e8d3bd915fc65c4452'
+        self.assertIn('http://www.gravatar.com/avatar/%s' % hashed_email, gravatar)
+        self.assertIn('s=256', gravatar_256)
+        self.assertIn('r=pg', gravatar_pg)
+        self.assertIn('d=retro', gravatar_retro)
+        self.assertIn('https://secure.gravatar.com/avatar/%s' % hashed_email, gravatar_ssl)
 
 
 if __name__ == '__main__':

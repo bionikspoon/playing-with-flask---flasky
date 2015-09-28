@@ -1,7 +1,10 @@
 #!/usr/bin/env python
 # coding=utf-8
 
-from flask import current_app
+import hashlib
+from datetime import datetime
+
+from flask import current_app, request
 from flask.ext.login import UserMixin, AnonymousUserMixin
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer, SignatureExpired, BadSignature
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -56,6 +59,13 @@ class User(UserMixin, db.Model):
     password_hash = db.Column(db.String(128))
     confirmed = db.Column(db.Boolean, default=False)
 
+    name = db.Column(db.String(64))
+    location = db.Column(db.String(64))
+    about_me = db.Column(db.Text())
+    member_since = db.Column(db.DateTime(), default=datetime.utcnow)
+    last_seen = db.Column(db.DateTime(), default=datetime.utcnow)
+    avatar_hash = db.Column(db.String(32))
+
     def __repr__(self):
         return '<User %r>' % self.username
 
@@ -67,6 +77,8 @@ class User(UserMixin, db.Model):
                 self.role = Role.query.filter_by(permissions=0xff).first()
             if self.role is None:
                 self.role = Role.query.filter_by(default=True).first()
+        if self.email and not self.avatar_hash:
+            self.avatar_hash = hashlib.md5(self.email.encode('utf-8')).hexdigest()
 
     @property
     def password(self):
@@ -137,6 +149,7 @@ class User(UserMixin, db.Model):
             return False
 
         self.email = new_email
+        self.avatar_hash = hashlib.md5(self.email.encode('utf-8')).hexdigest()
 
         db.session.add(self)
 
@@ -148,6 +161,17 @@ class User(UserMixin, db.Model):
     @property
     def is_admin(self):
         return self.can(Permission.ADMIN)
+
+    def ping(self):
+        self.last_seen = datetime.utcnow()
+        db.session.add(self)
+
+    def gravatar(self, size=100, default='monsterid', rating='g'):
+        prefix = 'https://secure.' if request.is_secure else 'http://www.'
+        url = 'gravatar.com/avatar'
+        email_hash = self.avatar_hash or hashlib.md5(self.email.encode('utf-8')).hexdigest()
+        template = '{prefix}{url}/{email_hash}?s={size}&d={default}&r={rating}'
+        return template.format(prefix=prefix, url=url, email_hash=email_hash, size=size, default=default, rating=rating)
 
 
 class AnonymousUser(AnonymousUserMixin):
