@@ -78,7 +78,7 @@ class User(UserMixin, db.Model):
             if self.role is None:
                 self.role = Role.query.filter_by(default=True).first()
         if self.email and not self.avatar_hash:
-            self.avatar_hash = hashlib.md5(self.email.encode('utf-8').hexdigest())
+            self.avatar_hash = hashlib.md5(self.email.encode('utf-8')).hexdigest()
 
     @property
     def password(self):
