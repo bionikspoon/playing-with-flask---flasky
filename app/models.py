@@ -58,6 +58,53 @@ class User(UserMixin, db.Model):
         db.session.add(self)
         return True
 
+    def generate_reset_token(self, expiration=3600):
+        s = Serializer(current_app.config['SECRET_KEY'], expiration)
+        return s.dumps({'reset': self.id})
+
+    def reset_password(self, token, new_password):
+        s = Serializer(current_app.config['SECRET_KEY'])
+        try:
+            data = s.loads(token)
+        except (SignatureExpired, BadSignature):
+            return False
+
+        if data.get('reset') != self.id:
+            return False
+
+        self.password = new_password
+        db.session.add(self)
+
+        return True
+
+    def generate_email_token(self, new_email, expiration=3600):
+        s = Serializer(current_app.config['SECRET_KEY'], expiration)
+        return s.dumps({'change_email': self.id, 'new_email': new_email})
+
+    def change_email(self, token):
+        s = Serializer(current_app.config['SECRET_KEY'])
+        try:
+            data = s.loads(token)
+        except (SignatureExpired, BadSignature) as e:
+            return False
+
+        if data.get('change_email') != self.id:
+            return False
+
+        new_email = data.get('new_email')
+
+        if not new_email:
+            return False
+
+        if self.query.filter_by(email=new_email).first():
+            return False
+
+        self.email = new_email
+
+        db.session.add(self)
+
+        return True
+
 
 @login_manager.user_loader
 def load_user(user_id):
