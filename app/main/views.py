@@ -44,7 +44,7 @@ def index():
 
 
 @main.route('/user/<username>')
-def user(username):
+def user_profile(username):
     user = User.query.filter_by(username=username).first()
     if not user:
         abort(404)
@@ -69,11 +69,11 @@ def edit_profile():
     return render_template('edit_profile.html', form=form)
 
 
-@main.route('/edit-profile/<int:id>', methods=['GET', 'POST'])
+@main.route('/edit-profile/<int:user_id>', methods=['GET', 'POST'])
 @login_required
 @admin_required
-def edit_profile_admin(id):
-    user = User.query.get_or_404(id)
+def edit_profile_admin(user_id):
+    user = User.query.get_or_404(user_id)
     form = EditProfileAdminForm(user=user)
     if form.validate_on_submit():
         user.email = form.email.data
