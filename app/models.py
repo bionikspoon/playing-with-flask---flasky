@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 # coding=utf-8
 
-from datetime import datetime
 import hashlib
+from datetime import datetime
+
 from flask import current_app, request
 from flask.ext.login import UserMixin, AnonymousUserMixin
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer, SignatureExpired, BadSignature
@@ -160,6 +161,13 @@ class User(UserMixin, db.Model):
     def ping(self):
         self.last_seen = datetime.utcnow()
         db.session.add(self)
+
+    def gravatar(self, size=100, default='monsterid', rating='g'):
+        prefix = 'https://secure.' if request.is_secure else 'http://www.'
+        url = 'gravatar.com/avatar'
+        hash = hashlib.md5(self.email.encode('utf-8')).hexdigest()
+        template = '{prefix}{url}/{hash}?s={size}&d={default}&r={rating}'
+        return template.format(prefix=prefix, url=url, hash=hash, size=size, default=default, rating=rating)
 
 
 class AnonymousUser(AnonymousUserMixin):
