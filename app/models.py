@@ -1,21 +1,54 @@
 #!/usr/bin/env python
 # coding=utf-8
 
+import re
+
 from flask import current_app
-from flask.ext.login import UserMixin
+from flask.ext.login import UserMixin, AnonymousUserMixin
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer, SignatureExpired, BadSignature
 from werkzeug.security import generate_password_hash, check_password_hash
+
 from . import db, login_manager
+
+_re_admin_email = re.compile(r'<(.+)>$')
+admin_email = _re_admin_email.search(current_app.config['FLASKY_ADMIN']).group(1)
+
+
+class Permission(object):
+    FOLLOW = 0x01
+    COMMENT = 0x02
+    WRITE_ARTICLES = 0x04
+    MODERATE_COMMENTS = 0x08
+    ADMIN = 0x80
 
 
 class Role(db.Model):
     __tablename__ = 'roles'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), unique=True)
+    default = db.Column(db.Boolean, default=False, index=True)
+    permissions = db.Column(db.Integer)
     users = db.relationship('User', backref='role', lazy='dynamic')
 
     def __repr__(self):
         return '<Role %r>' % self.name
+
+    @staticmethod
+    def insert_roles():
+        roles = {
+            'User': (Permission.FOLLOW | Permission.COMMENT | Permission.WRITE_ARTICLES, True),
+            'Moderator': (
+                Permission.FOLLOW | Permission.COMMENT | Permission.WRITE_ARTICLES | Permission.MODERATE_COMMENTS,
+                False),
+            'Administrator': (0xff, False)
+        }
+        for role_name, role_data in roles.items():
+            role = Role.query.filter_by(name=role_name).first()
+            if not role:
+                role = Role(name=role_name)
+            role.permissions, role.default = role_data
+            db.session.add(role)
+        db.session.commit()
 
 
 class User(UserMixin, db.Model):
@@ -30,6 +63,15 @@ class User(UserMixin, db.Model):
 
     def __repr__(self):
         return '<User %r>' % self.username
+
+    def __init__(self, **kwargs):
+        # noinspection PyArgumentList
+        super().__init__(**kwargs)
+        if self.role is None:
+            if self.email == admin_email:
+                self.role = Role.query.filter_by(permissions=0xff).first()
+            if self.role is None:
+                self.role = Role.query.filter_by(default=True).first()
 
     @property
     def password(self):
@@ -85,7 +127,7 @@ class User(UserMixin, db.Model):
         s = Serializer(current_app.config['SECRET_KEY'])
         try:
             data = s.loads(token)
-        except (SignatureExpired, BadSignature) as e:
+        except (SignatureExpired, BadSignature):
             return False
 
         if data.get('change_email') != self.id:
@@ -104,6 +146,24 @@ class User(UserMixin, db.Model):
         db.session.add(self)
 
         return True
+
+    def can(self, permissions):
+        return self.role is not None and (self.role.permissions & permissions) == permissions
+
+    @property
+    def is_admin(self):
+        return self.can(Permission.ADMIN)
+
+
+class AnonymousUser(AnonymousUserMixin):
+    is_admin = False
+
+    # noinspection PyMethodMayBeStatic
+    def can(self, _):
+        return False
+
+
+login_manager.anonymous_user = AnonymousUser
 
 
 @login_manager.user_loader

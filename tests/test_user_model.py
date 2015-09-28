@@ -73,7 +73,6 @@ class UserModelTestCase(unittest.TestCase):
         self.assertTrue(self.user.verify_password('new secret'))
 
     def test_invalid_reset_token(self):
-        # noinspection PyArgumentList
         user1 = User(password='secret')
         # noinspection PyArgumentList
         user2 = User(password='secret')
