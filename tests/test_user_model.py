@@ -88,22 +88,33 @@ class UserModelTestCase(unittest.TestCase):
         db.session.add(self.user)
         db.session.commit()
 
-        # token = self.user.generate_confirmation_token()
-        # self.assertTrue(self.user.confirm(token))
+        token = self.user.generate_email_token('test@test.com')
+        self.assertTrue(self.user.change_email(token))
+        self.assertEqual(self.user.email, 'test@test.com')
 
     def test_invalid_email_change_token(self):
         # noinspection PyArgumentList
-        user1 = User(password='secret')
+        user1 = User(email='user1@test.com', password='secret')
         # noinspection PyArgumentList
-        user2 = User(password='secret')
+        user2 = User(email='user2@test.com', password='secret')
         db.session.add_all([user1, user2])
         db.session.commit()
 
-        # token = user1.generate_confirmation_token()
-        # self.assertFalse(user2.confirm(token))
+        token = user1.generate_email_token('new@test.com')
+        self.assertFalse(user2.change_email(token))
+        self.assertEqual(user2.email, 'user2@test.com')
 
     def test_duplicate_email_change_token(self):
-        pass
+        # noinspection PyArgumentList
+        user1 = User(email='user1@test.com', password='secret')
+        # noinspection PyArgumentList
+        user2 = User(email='user2@test.com', password='secret')
+        db.session.add_all([user1, user2])
+        db.session.commit()
+
+        token = user2.generate_email_token('user1@test.com')
+        self.assertFalse(user2.change_email(token))
+        self.assertEqual(user2.email, 'user2@test.com')
 
 
 if __name__ == '__main__':

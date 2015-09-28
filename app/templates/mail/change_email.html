@@ -1,0 +1,16 @@
+{% extends 'mail/base.html' %}
+
+{% block content %}
+   <p> Dear {{ user.username }}, </p>
+
+   <p> To confirm your new email address
+      <a href="{{ url_for('auth.change_email', token=token, _external=True) }}">click here</a>.
+   </p>
+
+   <p>If you have not request a password reset simply ignore this message.</p>
+
+   <p> Sincerely, </p>
+   <p> The Flasky Team </p>
+
+   <p> Note: replies to this email address are not monitored. </p>
+{% endblock content %}
