@@ -23,7 +23,8 @@ class Config(object):
     FLASKY_MAIL_SENDER = 'Flasky Admin <no-reply@flasky.com>'
     FLASKY_ADMIN = 'Manu Phatak <admin@flasky.com>'
     FLASKY_ADMIN_EMAIL = 'admin@flasky.com'
-    FLASKY_POSTS_PER_PAGE = 5
+    FLASKY_POSTS_PER_PAGE = 20
+    FLASKY_FOLLOWERS_PER_PAGE = 50
 
     @staticmethod
     def init_app(app):
@@ -34,6 +35,8 @@ class DevelopmentConfig(Config):
     DEBUG = True
     SQLALCHEMY_DATABASE_URI = 'sqlite:///%s' % (ROOT_DIR / 'db-dev.sqlite')
     WTF_CSRF_ENABLED = False
+    FLASKY_POSTS_PER_PAGE = 5
+    FLASKY_FOLLOWERS_PER_PAGE = 5
 
 
 class TestingConfig(Config):
