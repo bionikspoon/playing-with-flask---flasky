@@ -89,7 +89,7 @@ def edit_profile_admin(user_id):
 
 
 @main.route('/post/<int:post_id>')
-def post(post_id):
+def show_post(post_id):
     post = Post.query.get_or_404(post_id)
     return render_template('post.html', posts=[post])
 
