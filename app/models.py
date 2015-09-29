@@ -78,12 +78,12 @@ class User(UserMixin, db.Model):
 
     posts = db.relationship('Post', backref='author', lazy='dynamic')
 
-    follower = db.relationship('Follow', foreign_keys=[Follow.follower_id],
+    followed = db.relationship('Follow', foreign_keys=[Follow.follower_id],
                                backref=db.backref('follower', lazy='joined'), lazy='dynamic',
                                cascade='all, delete-orphan')
-    followed = db.relationship('Follow', foreign_keys=[Follow.followed_id],
-                               backref=db.backref('followed', lazy='joined'), lazy='dynamic',
-                               cascade='all, delete-orphan')
+    follower = db.relationship('Follow', foreign_keys=[Follow.followed_id],
+                                backref=db.backref('followed', lazy='joined'), lazy='dynamic',
+                                cascade='all, delete-orphan')
 
     def __repr__(self):
         return '<User %r>' % self.username
@@ -212,19 +212,19 @@ class User(UserMixin, db.Model):
 
     def follow(self, user):
         if not self.is_following(user):
-            follow = Follow(follower=self, followed=user)
-            db.session.add(follow)
+            follow = Follow(followed=user)
+            self.followed.append(follow)
 
     def unfollow(self, user):
         follow = self.followed.filter_by(followed_id=user.id).first()
         if follow:
-            db.session.delete(follow)
+            self.followed.remove(follow)
 
     def is_following(self, user):
         return self.followed.filter_by(followed_id=user.id).first() is not None
 
     def is_followed_by(self, user):
-        return self.followers.filter_by(follower_id=user.id).first() is not None
+        return self.follower.filter_by(follower_id=user.id).first() is not None
 
 
 class Post(db.Model):
