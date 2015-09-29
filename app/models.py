@@ -3,10 +3,13 @@
 
 import hashlib
 from datetime import datetime
+from random import randint
 
+import bleach
 from flask import current_app, request
 from flask.ext.login import UserMixin, AnonymousUserMixin
-from itsdangerous import TimedJSONWebSignatureSerializer as Serializer, SignatureExpired, BadSignature
+from itsdangerous import (TimedJSONWebSignatureSerializer as Serializer, SignatureExpired, BadSignature)
+from markdown import markdown
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from . import db, login_manager
@@ -65,6 +68,8 @@ class User(UserMixin, db.Model):
     member_since = db.Column(db.DateTime(), default=datetime.utcnow)
     last_seen = db.Column(db.DateTime(), default=datetime.utcnow)
     avatar_hash = db.Column(db.String(32))
+
+    posts = db.relationship('Post', backref='author', lazy='dynamic')
 
     def __repr__(self):
         return '<User %r>' % self.username
@@ -173,6 +178,54 @@ class User(UserMixin, db.Model):
         template = '{prefix}{url}/{email_hash}?s={size}&d={default}&r={rating}'
         return template.format(prefix=prefix, url=url, email_hash=email_hash, size=size, default=default, rating=rating)
 
+    @staticmethod
+    def generate_fake(count=100):
+        from sqlalchemy.exc import IntegrityError
+        from random import seed
+        import forgery_py
+
+        seed()
+        for i in range(count):
+            user = User(email=forgery_py.internet.email_address(),
+                        username=forgery_py.internet.user_name(with_num=True), password='secret', confirmed=True,
+                        name=forgery_py.name.full_name(), location=forgery_py.address.city(),
+                        about_me=forgery_py.lorem_ipsum.sentence(), member_since=forgery_py.date.date(past=True))
+            db.session.add(user)
+            try:
+                db.session.commit()
+            except IntegrityError:
+                db.session.rollback()
+
+
+class Post(db.Model):
+    __tablename__ = 'posts'
+    id = db.Column(db.Integer, primary_key=True)
+    body = db.Column(db.Text)
+    body_html = db.Column(db.Text)
+    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+    author_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+
+    @staticmethod
+    def on_changed_body(target, value, *_):
+        allowed_tags = ['a', 'abbr', 'acronym', 'b', 'blockquote', 'code', 'em', 'i', 'li', 'ol', 'pre', 'strong', 'ul',
+                        'h1', 'h2', 'h3', 'p']
+        target.body_html = bleach.linkify(
+            bleach.clean(markdown(value, output_format='html'), tags=allowed_tags, strip=True))
+
+    @staticmethod
+    def generate_fake(count=100):
+        from random import seed
+        import forgery_py
+
+        seed()
+        user_count = User.query.count()
+        for i in range(count):
+            user = User.query.offset(randint(0, user_count - 1)).first()
+            post = Post(body=forgery_py.lorem_ipsum.sentences(quantity=randint(1, 5)),
+                        timestamp=forgery_py.date.date(past=True), author=user)
+            db.session.add(post)
+            db.session.commit()
+
 
 class AnonymousUser(AnonymousUserMixin):
     is_admin = False
@@ -183,6 +236,8 @@ class AnonymousUser(AnonymousUserMixin):
 
 
 login_manager.anonymous_user = AnonymousUser
+
+db.event.listen(Post.body, 'set', Post.on_changed_body)
 
 
 @login_manager.user_loader

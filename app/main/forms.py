@@ -1,10 +1,9 @@
 #!/usr/bin/env python
 # coding=utf-8
-
+from flask.ext.pagedown.fields import PageDownField
 from flask.ext.wtf import Form
 from wtforms import StringField, SubmitField, TextAreaField, BooleanField, SelectField
 from wtforms.validators import DataRequired, Length, Email
-
 from ..models import Role
 from ..validators import ValidUsername, Unique
 
@@ -35,3 +34,8 @@ class EditProfileAdminForm(Form):
         super().__init__(*args, **kwargs)
         self.role.choices = [(role.id, role.name) for role in Role.query.order_by(Role.name).all()]
         self.user = user
+
+
+class PostForm(Form):
+    body = PageDownField('What\'s on your mind?', validators=[DataRequired()])
+    submit = SubmitField('Submit')

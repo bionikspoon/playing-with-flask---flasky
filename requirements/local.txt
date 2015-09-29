@@ -5,6 +5,7 @@
 #    pip-compile local.in
 #
 alembic==0.8.2            # via flask-migrate
+bleach==1.4.2
 blinker==1.4              # via flask-mail
 click==5.1                # via pip-tools
 decorator==4.0.4          # via ipython, traitlets
@@ -15,10 +16,13 @@ flask-login==0.3.0
 flask-mail==0.9.1
 flask-migrate==1.6.0
 flask-moment==0.5.1
+flask-pagedown==0.2.1
 flask-script==2.0.5
 flask-sqlalchemy==2.0
 flask-wtf==0.12
 flask==0.10.1
+forgerypy==0.1
+html5lib==0.9999999       # via bleach
 ipykernel==4.0.3          # via ipywidgets, jupyter, jupyter-console, notebook, qtconsole
 ipython-genutils==0.1.0   # via nbformat, notebook, traitlets
 ipython==4.0.0            # via ipykernel, ipywidgets, jupyter-console
@@ -31,6 +35,7 @@ jupyter-console==4.0.2    # via jupyter
 jupyter-core==4.0.6       # via jupyter-client, nbconvert, nbformat, notebook, qtconsole
 jupyter==1.0.0
 mako==1.0.2               # via alembic
+markdown==2.6.2
 markupsafe==0.23          # via jinja2, mako
 mistune==0.7.1            # via nbconvert
 nbconvert==4.0.0          # via jupyter, notebook
@@ -46,10 +51,10 @@ python-editor==0.4        # via alembic
 pyzmq==14.7.0             # via jupyter-client
 qtconsole==4.0.1          # via jupyter
 simplegeneric==0.8.1      # via ipython
-six==1.9.0                # via pip-tools
+six==1.9.0                # via bleach, html5lib, pip-tools
 sqlalchemy==1.0.8         # via alembic, flask-sqlalchemy
 terminado==0.5            # via notebook
 tornado==4.2.1            # via notebook, terminado
 traitlets==4.0.0          # via ipykernel, ipython, ipywidgets, jupyter-client, jupyter-core, nbconvert, nbformat, notebook, qtconsole
 werkzeug==0.10.4
-wtforms==2.0.2            # via flask-wtf
+wtforms==2.0.2            # via flask-pagedown, flask-wtf

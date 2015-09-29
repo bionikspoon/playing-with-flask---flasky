@@ -1,17 +1,14 @@
 #!/usr/bin/env python
 # coding=utf-8
 
-from datetime import datetime
-
-from flask import (request, redirect, render_template, session, url_for, current_app, abort, flash)
+from flask import (redirect, render_template, url_for, flash, request, current_app, abort)
 from flask.ext.login import login_required, current_user
 
 from . import main
-from .forms import NameForm, EditProfileForm, EditProfileAdminForm
+from .forms import EditProfileForm, EditProfileAdminForm, PostForm
 from .. import db
 from ..decorators import admin_required, permission_required
-from ..email import send_email
-from ..models import User, Permission, Role
+from ..models import User, Permission, Role, Post
 
 
 @main.app_context_processor
@@ -21,35 +18,30 @@ def inject_permissions():
 
 @main.route('/', methods=['GET', 'POST'])
 def index():
-    form = NameForm()
-    if form.validate_on_submit():
-        user = User.query.filter_by(username=form.name.data).first()
-        if not user:
-            user = User(username=form.name.data)
-            db.session.add(user)
-            session['known'] = False
-            if current_app.config['FLASKY_ADMIN']:
-                send_email(current_app.config['FLASKY_ADMIN'], 'New User', 'mail/new_user', user=user)
-        else:
-            session['known'] = True
-
-        session['name'], form.name.data = form.name.data, ''
-
+    form = PostForm()
+    if current_user.can(Permission.WRITE_ARTICLES) and form.validate_on_submit():
+        # noinspection PyProtectedMember
+        post = Post(body=form.body.data, author=current_user._get_current_object())
+        db.session.add(post)
         return redirect(url_for('.index'))
-    user_agent = request.headers.get('User-Agent')
-    name = 'Stranger' if not current_user.is_authenticated else current_user.username
-    context = dict(user_agent=user_agent, current_time=datetime.utcnow(), form=form, name=name,
-                   known=session.get('known', False))
-    return render_template('index.html', **context)
+    page = request.args.get('page', 1, type=int)
+    pagination = Post.query.order_by(Post.timestamp.desc()).paginate(page, per_page=current_app.config[
+        'FLASKY_POSTS_PER_PAGE'], error_out=False)
+    posts = pagination.items
+    name = 'Stranger' if not current_user.is_authenticated else (current_user.name or current_user.username)
+    return render_template('index.html', form=form, posts=posts, name=name, pagination=pagination)
 
 
 @main.route('/user/<username>')
 def user_profile(username):
-    user = User.query.filter_by(username=username).first()
-    if not user:
-        abort(404)
+    user = User.query.filter_by(username=username).first_or_404()
 
-    return render_template('user.html', user=user)
+    page = request.args.get('page', 1, type=int)
+    pagination = user.posts.order_by(Post.timestamp.desc()).paginate(page, per_page=current_app.config[
+        'FLASKY_POSTS_PER_PAGE'], error_out=False)
+    posts = pagination.items
+
+    return render_template('user_profile.html', user=user, posts=posts, pagination=pagination)
 
 
 @main.route('/edit-profile', methods=['GET', 'POST'])
@@ -96,21 +88,23 @@ def edit_profile_admin(user_id):
     return render_template('edit_profile.html', form=form, user=user)
 
 
-@main.route('/secret')
-@login_required
-def secret():
-    return 'Only authenticated users are allowed!'
+@main.route('/post/<int:post_id>')
+def post(post_id):
+    post = Post.query.get_or_404(post_id)
+    return render_template('post.html', posts=[post])
 
 
-@main.route('/admin')
-@login_required
-@admin_required
-def admin():
-    return 'Only admins.'
+@main.route('/edit-post/<int:post_id>', methods=['GET', 'POST'])
+def edit_post(post_id):
+    post = Post.query.get_or_404(post_id)
+    if current_user != post.author and not current_user.can(Permission.ADMIN):
+        abort(403)
 
-
-@main.route('/moderator')
-@login_required
-@permission_required(Permission.MODERATE_COMMENTS)
-def moderator():
-    return 'Only moderators'
+    form = PostForm()
+    if form.validate_on_submit():
+        post.body = form.body.data
+        db.session.add(post)
+        flash('The post has been updated.')
+        return redirect(url_for('.post', post_id=post.id))
+    form.body.data = post.body
+    return render_template('edit_post.html', form=form)

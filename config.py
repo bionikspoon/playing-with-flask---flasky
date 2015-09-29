@@ -23,6 +23,7 @@ class Config(object):
     FLASKY_MAIL_SENDER = 'Flasky Admin <no-reply@flasky.com>'
     FLASKY_ADMIN = 'Manu Phatak <admin@flasky.com>'
     FLASKY_ADMIN_EMAIL = 'admin@flasky.com'
+    FLASKY_POSTS_PER_PAGE = 5
 
     @staticmethod
     def init_app(app):

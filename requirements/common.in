@@ -7,6 +7,9 @@ Flask-Moment
 Flask-Script
 Flask-SQLAlchemy
 Flask-WTF
+flask-pagedown
+markdown
+bleach
 
 itsdangerous
 Werkzeug
