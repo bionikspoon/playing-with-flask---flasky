@@ -82,7 +82,7 @@ def edit_profile_admin(user_id):
         user.about_me = form.about_me.data
         db.session.add(user)
         flash('The profile has been updated.')
-        return redirect(url_for('.user', username=user.username))
+        return redirect(url_for('.user_profile', username=user.username))
     form.email.data = user.email
     form.username.data = user.username
     form.confirmed.data = user.confirmed
@@ -202,3 +202,36 @@ def show_followed():
     response = make_response(redirect(url_for('.index')))
     response.set_cookie('show_followed', '1', max_age=30 * 24 * 60 * 60)
     return response
+
+
+@main.route('/moderate')
+@login_required
+@permission_required(Permission.MODERATE_COMMENTS)
+def moderate():
+    page = request.args.get('page', 1, type=int)
+    per_page = current_app.config['FLASKY_COMMENTS_PER_PAGE']
+    pagination = Comment.query.order_by(Comment.timestamp.desc()).paginate(page, per_page, error_out=False)
+    comments = pagination.items
+    return render_template('moderate.html', comments=comments, pagination=pagination, page=page)
+
+
+@main.route('/moderate/enable/<int:comment_id>')
+@login_required
+@permission_required(Permission.MODERATE_COMMENTS)
+def moderate_enable(comment_id):
+    comment = Comment.query.get_or_404(comment_id)
+    comment.disabled = False
+    db.session.add(comment)
+    page = request.args.get('page', 1, type=int)
+    return redirect(url_for('.moderate', page=page))
+
+
+@main.route('/moderate/disable/<int:comment_id>')
+@login_required
+@permission_required(Permission.MODERATE_COMMENTS)
+def moderate_disable(comment_id):
+    comment = Comment.query.get_or_404(comment_id)
+    comment.disabled = True
+    db.session.add(comment)
+    page = request.args.get('page', 1, type=int)
+    return redirect(url_for('.moderate', page=page))

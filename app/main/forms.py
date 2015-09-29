@@ -22,8 +22,8 @@ class EditProfileForm(Form):
 
 
 class EditProfileAdminForm(Form):
-    email = StringField('Email', validators=[DataRequired(), Length(1, 64), Email(), Unique('email')])
-    username = StringField('Username', validators=[DataRequired(), Length(1, 64), ValidUsername(), Unique('username')])
+    email = StringField('Email', validators=[DataRequired(), Length(1, 64), Email()])
+    username = StringField('Username', validators=[DataRequired(), Length(1, 64), ValidUsername()])
     confirmed = BooleanField('Confirmed')
     role = SelectField('Role', coerce=int)
     name = StringField('Real name', validators=[Length(0, 64)])
@@ -35,6 +35,14 @@ class EditProfileAdminForm(Form):
         super().__init__(*args, **kwargs)
         self.role.choices = [(role.id, role.name) for role in Role.query.order_by(Role.name).all()]
         self.user = user
+
+    def validate_email(self, field):
+        if field.data != self.user.email:
+            Unique('email')(self, field)
+
+    def validate_username(self, field):
+        if field.data != self.user.username:
+            Unique('Username')(self, field)
 
 
 class PostForm(Form):
