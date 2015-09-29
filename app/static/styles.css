@@ -22,6 +22,12 @@
     font-weight: bold; }
   .post__thumbnail {
     position: absolute; }
+  .post__body h1 {
+    font-size: 140%; }
+  .post__body h2 {
+    font-size: 130%; }
+  .post__body h3 {
+    font-size: 120%; }
   .post--content {
     margin-left: 48px;
     min-height: 48px; }
@@ -31,5 +37,16 @@ div.pagination {
   text-align: right;
   padding: 0;
   margin: 0; }
+
+.flask-pagedown-preview {
+  margin: 10px 0 10px 0;
+  border: 1px solid #e0e0e0;
+  padding: 4px; }
+  .flask-pagedown-preview h1 {
+    font-size: 140%; }
+  .flask-pagedown-preview h2 {
+    font-size: 130%; }
+  .flask-pagedown-preview h3 {
+    font-size: 120%; }
 
 /*# sourceMappingURL=styles.css.map */

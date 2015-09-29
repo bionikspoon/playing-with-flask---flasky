@@ -1,4 +1,4 @@
-"""empty message
+"""blog posts
 
 Revision ID: 464d6fe8b2a
 Revises: 221d39f2ed3
