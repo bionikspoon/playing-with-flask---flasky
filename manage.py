@@ -9,7 +9,7 @@ from flask.ext.script import Shell
 
 from app import create_app, db
 from app.email import send_email
-from app.models import User, Role, Permission, Post, Follow
+from app.models import User, Role, Permission, Post, Follow, Comment
 
 app = create_app(os.getenv('FLASK_CONFIG', 'default'))
 
@@ -19,7 +19,7 @@ migrate = Migrate(app, db)
 
 def make_shell_context():
     return dict(app=app, db=db, send_email=send_email, User=User, Role=Role, Post=Post, Permission=Permission,
-                Follow=Follow)
+                Follow=Follow, Comment=Comment)
 
 
 manager.add_command('shell', Shell(make_context=make_shell_context))

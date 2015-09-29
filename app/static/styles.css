@@ -56,4 +56,28 @@ div.pagination {
   .flask-pagedown-preview h3 {
     font-size: 120%; }
 
+.comment {
+  margin-left: 32px;
+  padding: 8px;
+  border-bottom: 1px solid #e0e0e0; }
+  .comment:nth-child(1) {
+    border-top: 1px solid #e0e0e0; }
+  .comment:hover {
+    background-color: #f0f0f0; }
+  .comment--container {
+    list-style-type: none;
+    padding: 0;
+    margin: 16px 0 0 0; }
+  .comment__date {
+    float: right; }
+  .comment__author {
+    font-weight: bold; }
+  .comment__thumbnail {
+    position: absolute; }
+  .comment--content {
+    margin-left: 48px;
+    min-height: 48px; }
+  .comment--form {
+    margin: 16px 0 16px 32px; }
+
 /*# sourceMappingURL=styles.css.map */
