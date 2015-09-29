@@ -182,10 +182,10 @@ class UserFollowsTestCase(BaseTestCase):
     def test_new_users_are_follower_blank_slate(self):
         self.assertFalse(self.user1.is_following(self.user2))
         self.assertFalse(self.user1.is_followed_by(self.user2))
-        self.assertEqual(self.user1.followed.count(), 0)
-        self.assertEqual(self.user1.follower.count(), 0)
-        self.assertEqual(self.user2.followed.count(), 0)
-        self.assertEqual(self.user2.follower.count(), 0)
+        self.assertEqual(self.user1.followed.count(), 1)
+        self.assertEqual(self.user1.follower.count(), 1)
+        self.assertEqual(self.user2.followed.count(), 1)
+        self.assertEqual(self.user2.follower.count(), 1)
 
     def test_user_can_follow_other_users(self):
         self.user1_follows_user2()
@@ -199,10 +199,10 @@ class UserFollowsTestCase(BaseTestCase):
         self.assertFalse(self.user2.is_following(self.user1))
         self.assertFalse(self.user1.is_followed_by(self.user2))
 
-        self.assertEqual(self.user1.followed.count(), 1)
-        self.assertEqual(self.user1.follower.count(), 0)
-        self.assertEqual(self.user2.followed.count(), 0)
-        self.assertEqual(self.user2.follower.count(), 1)
+        self.assertEqual(self.user1.followed.count(), 2)
+        self.assertEqual(self.user1.follower.count(), 1)
+        self.assertEqual(self.user2.followed.count(), 1)
+        self.assertEqual(self.user2.follower.count(), 2)
 
     def test_follower_entry_timestamp_is_now(self):
         timestamp_before = datetime.utcnow()
@@ -223,7 +223,7 @@ class UserFollowsTestCase(BaseTestCase):
         follow_entry = self.user2.follower.all()[-1]
         self.assertEqual(follow_entry.follower, self.user1)
 
-        self.assertEqual(Follow.query.count(), 1)
+        self.assertEqual(Follow.query.count(), 3)
 
     def test_user_can_unfollow_a_user(self):
         self.user1_follows_user2()
@@ -232,10 +232,10 @@ class UserFollowsTestCase(BaseTestCase):
         self.user1_unfollows_user2()
 
         self.assertFalse(self.user1.is_following(self.user2))
-        self.assertEqual(self.user1.followed.count(), 0)
-        self.assertEqual(self.user2.follower.count(), 0)
+        self.assertEqual(self.user1.followed.count(), 1)
+        self.assertEqual(self.user2.follower.count(), 1)
 
-        self.assertEqual(Follow.query.count(), 0)
+        self.assertEqual(Follow.query.count(), 2)
 
     def test_deletion_removes_orphans(self):
         self.user1.follow(self.user2)
@@ -244,7 +244,7 @@ class UserFollowsTestCase(BaseTestCase):
         db.session.commit()
         db.session.delete(self.user2)
         db.session.commit()
-        self.assertEqual(Follow.query.count(), 0)
+        self.assertEqual(Follow.query.count(), 1)
 
 
 if __name__ == '__main__':
