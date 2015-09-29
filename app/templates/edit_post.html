@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% import 'bootstrap/wtf.html' as wtf %}
+
+{% block title %}
+   {{ super() }} - Edit Post
+{% endblock title %}
+
+{% block page_header %}
+   Edit Post
+{% endblock page_header %}
+
+{% block page_content %}
+   {{ wtf.quick_form(form) }}
+{% endblock page_content %}

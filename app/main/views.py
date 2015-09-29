@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding=utf-8
 
-from flask import (redirect, render_template, url_for, flash, request, current_app)
+from flask import (redirect, render_template, url_for, flash, request, current_app, abort)
 from flask.ext.login import login_required, current_user
 
 from . import main
@@ -94,21 +94,17 @@ def post(post_id):
     return render_template('post.html', posts=[post])
 
 
-@main.route('/secret')
-@login_required
-def secret():
-    return 'Only authenticated users are allowed!'
+@main.route('/edit-post/<int:post_id>', methods=['GET', 'POST'])
+def edit_post(post_id):
+    post = Post.query.get_or_404(post_id)
+    if current_user != post.author and not current_user.can(Permission.ADMIN):
+        abort(403)
 
-
-@main.route('/admin')
-@login_required
-@admin_required
-def admin():
-    return 'Only admins.'
-
-
-@main.route('/moderator')
-@login_required
-@permission_required(Permission.MODERATE_COMMENTS)
-def moderator():
-    return 'Only moderators'
+    form = PostForm()
+    if form.validate_on_submit():
+        post.body = form.body.data
+        db.session.add(post)
+        flash('The post has been updated.')
+        return redirect(url_for('.post', post_id=post.id))
+    form.body.data = post.body
+    return render_template('edit_post.html', form=form)
