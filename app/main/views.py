@@ -88,6 +88,12 @@ def edit_profile_admin(user_id):
     return render_template('edit_profile.html', form=form, user=user)
 
 
+@main.route('/post/<int:post_id>')
+def post(post_id):
+    post = Post.query.get_or_404(post_id)
+    return render_template('post.html', posts=[post])
+
+
 @main.route('/secret')
 @login_required
 def secret():

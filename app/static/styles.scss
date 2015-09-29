@@ -47,6 +47,9 @@
     &__body {
         @include post-headings()
     }
+    &__footer {
+        text-align: right;
+    }
     &--content {
         margin-left: 48px;
         min-height:  48px;

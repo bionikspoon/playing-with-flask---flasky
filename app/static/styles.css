@@ -28,6 +28,8 @@
     font-size: 130%; }
   .post__body h3 {
     font-size: 120%; }
+  .post__footer {
+    text-align: right; }
   .post--content {
     margin-left: 48px;
     min-height: 48px; }
