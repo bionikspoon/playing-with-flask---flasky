@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% import '_macros.html' as macros %}
+
+{% block title %}
+   {{ super() }} -
+{% endblock title %}
+
+{% block page_header %}
+   <h1>{{ title }} {{ user.username }}</h1>
+{% endblock page_header %}
+
+{% block page_content %}
+   <table class="table table-hober followers">
+      <thead>
+      <tr>
+         <th>User</th>
+         <th>Since</th>
+      </tr>
+      </thead>
+      <tbody>
+      {% for follow in follows %}
+         <tr>
+            <td>
+               <a href="{{ url_for('.user_profile',username=follow.user.username) }}">
+                  <img src="{{ follow.user.gravatar(size=32) }}"
+                       class="img-rounded">
+
+                  {{ follow.user.username }}
+               </a>
+            </td>
+            <td>{{ moment(follow.timestamp).format('L') }}</td>
+         </tr>
+      {% endfor %}
+      </tbody>
+   </table>
+   <div class="pagination">
+      {{ macros.pagination_widget(pagination, endpoint, username=user.username) }}
+   </div>
+{% endblock page_content %}
