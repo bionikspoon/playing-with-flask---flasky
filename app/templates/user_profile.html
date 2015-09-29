@@ -36,7 +36,7 @@
          Member since {{ moment(user.member_since).format('L') }}. Last seen {{ moment(user.last_seen).fromNow() }}
       </p>
 
-      <p>{{ user.posts.count() }} Blog posts.</p>
+      <p>{{ user.posts.count() }} Blog posts. {{ user.comments.count() }} comments.</p>
 
       <p>
          {% if current_user.can(Permission.FOLLOW) and user != current_user %}
