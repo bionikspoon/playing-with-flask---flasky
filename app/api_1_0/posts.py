@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # coding=utf-8
-from flask import jsonify, request, g, url_for
+from flask import jsonify, request, g, url_for, current_app
 
 from . import api
 from .errors import forbidden
@@ -11,8 +11,14 @@ from ..models import Post, Permission
 
 @api.route('/posts/')
 def get_posts():
-    posts = Post.query.all()
-    return jsonify({'posts': [post.json for post in posts]})
+    page = request.args.get('page', 1, type=int)
+    per_page = current_app.config['FLASKY_POSTS_PER_PAGE']
+    pagination = Post.query.paginate(page, per_page, error_out=False)
+    posts = pagination.items
+    _prev = None if not pagination.has_prev else url_for('api.get_posts', page=page - 1, _external=True)
+    _next = None if not pagination.has_next else url_for('api.get_posts', page=page + 1, _external=True)
+
+    return jsonify({'posts': [post.json for post in posts], 'prev': _prev, 'next': _next, 'count': pagination.total})
 
 
 @api.route('/posts/<int:post_id>')

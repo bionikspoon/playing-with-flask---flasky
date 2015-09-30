@@ -1,18 +1,30 @@
 #!/usr/bin/env python
 # coding=utf-8
 
-from flask import jsonify, request, g, url_for
+from flask import jsonify, request, g, url_for, current_app
 
-from app import db
-from app.api_1_0 import api
-from app.api_1_0.decorators import permission_required
-from app.models import Comment, Post, Permission
+from . import api
+from .. import db
+from ..decorators import permission_required
+from ..models import Comment, Post, Permission
 
 
 @api.route('/comments/')
 def get_comments():
-    comments = Comment.query.order_by(Comment.timestamp.desc()).all()
-    return jsonify({'comments': [comment.json for comment in comments]})
+    page = request.args.get('page', 1, type=int)
+    per_page = current_app.config['FLASKY_POSTS_PER_PAGE']
+
+    pagination = Comment.query.order_by(Comment.timestamp.desc()).paginate(page, per_page, error_out=False)
+    comments = pagination.items
+    _prev = None if not pagination.has_prev else url_for('api.get_posts', page=page - 1, _external=True)
+    _next = None if not pagination.has_next else url_for('api.get_posts', page=page + 1, _external=True)
+    response = {
+        'comments': [comment.json for comment in comments],
+        'prev': _prev,
+        'next': _next,
+        'count': pagination.total
+    }
+    return jsonify(response)
 
 
 @api.route('/comments/<int:comment_id>')
@@ -24,8 +36,21 @@ def get_comment(comment_id):
 @api.route('/posts/<int:post_id>/comments/')
 def get_post_comments(post_id):
     post = Post.query.get_or_404(post_id)
-    comments = post.comments.order_by(Comment.timestamp.asc())
-    return jsonify({'comments': [comment.json for comment in comments]})
+
+    page = request.args.get('page', 1, type=int)
+    per_page = current_app.config['FLASKY_POSTS_PER_PAGE']
+
+    pagination = post.comments.order_by(Comment.timestamp.asc()).paginate(page, per_page, error_out=False)
+    comments = pagination.items
+    _prev = None if not pagination.has_prev else url_for('api.get_posts', page=page - 1, _external=True)
+    _next = None if not pagination.has_next else url_for('api.get_posts', page=page + 1, _external=True)
+    response = {
+        'comments': [comment.json for comment in comments],
+        'prev': _prev,
+        'next': _next,
+        'count': pagination.total
+    }
+    return jsonify(response)
 
 
 @api.route('/posts/<int:post_id>/comments/', methods=['POST'])
