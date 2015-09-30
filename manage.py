@@ -34,5 +34,21 @@ def test():
     unittest.TextTestRunner(verbosity=2).run(tests)
 
 
+@manager.command
+def generate_fake():
+    """Generate fake data"""
+    Role.insert_roles()
+
+    admin = User(email='admin@flasky.com', password='secret', confirmed=True, username='Admin')
+    db.session.add(admin)
+    db.session.commit()
+    print('Inserting admin user: admin@flasky.com')
+
+    User.generate_fake()
+    Post.generate_fake()
+    Comment.generate_fake()
+    Follow.generate_fake()
+
+
 if __name__ == '__main__':
     manager.run()

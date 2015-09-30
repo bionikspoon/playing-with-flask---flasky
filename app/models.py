@@ -50,6 +50,7 @@ class Role(db.Model):
             role.permissions, role.default = role_data
             db.session.add(role)
         db.session.commit()
+        print('Roles inserted.')
 
 
 class Follow(db.Model):
@@ -57,6 +58,25 @@ class Follow(db.Model):
     follower_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True)
     followed_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+
+    @staticmethod
+    def generate_fake(count=20):
+        from random import seed, random, randrange, sample
+        before = Follow.query.count()
+        seed()
+        users = User.query.all()
+        for user in users:
+            if not random() > .2:
+                continue
+
+            sample_size = randrange(0, count)
+            follow_sample = sample(users, sample_size)
+            for followee in follow_sample:
+                user.follow(followee)
+            db.session.commit()
+        after = Follow.query.count()
+        participants = Follow.query.group_by('follower_id').having(db.func.count('follower_id') > 1).count()
+        print('%s new follows. %s total follows with %s participants.' % (after - before, after, participants))
 
 
 class User(UserMixin, db.Model):
@@ -199,19 +219,22 @@ class User(UserMixin, db.Model):
     def generate_fake(count=100):
         from sqlalchemy.exc import IntegrityError
         from random import seed
-        import forgery_py
+        import forgery_py as forgery
 
         seed()
+        before = User.query.count()
         for i in range(count):
-            user = User(email=forgery_py.internet.email_address(),
-                        username=forgery_py.internet.user_name(with_num=True), password='secret', confirmed=True,
-                        name=forgery_py.name.full_name(), location=forgery_py.address.city(),
-                        about_me=forgery_py.lorem_ipsum.sentence(), member_since=forgery_py.date.date(past=True))
+            user = User(email=forgery.internet.email_address(), username=forgery.internet.user_name(with_num=True),
+                        password='secret', confirmed=True, name=forgery.name.full_name(),
+                        location=forgery.address.city(), about_me=forgery.lorem_ipsum.sentence(),
+                        member_since=forgery.date.date(past=True))
             db.session.add(user)
             try:
                 db.session.commit()
             except IntegrityError:
                 db.session.rollback()
+        after = User.query.count()
+        print('%s users created. %s users total' % (after - before, after))
 
     def follow(self, user):
         if not self.is_following(user):
@@ -261,16 +284,21 @@ class Post(db.Model):
     @staticmethod
     def generate_fake(count=100):
         from random import seed
-        import forgery_py
+        import forgery_py as forgery
 
         seed()
+        before = Post.query.count()
         user_count = User.query.count()
         for i in range(count):
             user = User.query.offset(randint(0, user_count - 1)).first()
-            post = Post(body=forgery_py.lorem_ipsum.sentences(quantity=randint(1, 5)),
-                        timestamp=forgery_py.date.date(past=True), author=user)
+            post = Post(body=forgery.lorem_ipsum.sentences(quantity=randint(1, 5)),
+                        timestamp=forgery.date.date(past=True), author=user)
             db.session.add(post)
             db.session.commit()
+
+        after = Post.query.count()
+        participants = Post.query.group_by('author_id').count()
+        print('%s posts created.  %s posts total with %s participants.' % (after - before, after, participants))
 
 
 class Comment(db.Model):
@@ -288,6 +316,30 @@ class Comment(db.Model):
         allowed_tags = ['a', 'abbr', 'acronym', 'b', 'code', 'em', 'i', 'strong']
         target.body_html = bleach.linkify(
             bleach.clean(markdown(value, output_format='html'), tags=allowed_tags, strip=True))
+
+    @staticmethod
+    def generate_fake(count=50):
+        from random import seed, random, randrange, choice
+        import forgery_py as forgery
+
+        seed()
+        before = Comment.query.count()
+        users = User.query.all()
+        posts = Post.query.all()
+        for user in users:
+            if not random() > .5:
+                continue
+
+            sample_size = randrange(1, count)
+            for _ in range(sample_size):
+                disabled = random() < .1
+                post = choice(posts)
+                comment = Comment(post=post, author=user, body=forgery.lorem_ipsum.sentences(randint(1, 3)),
+                                  timestamp=forgery.date.date(past=True), disabled=disabled)
+                db.session.add(comment)
+        after = Comment.query.count()
+        participants = Comment.query.group_by('author_id').count()
+        print('%s new comments.  %s comments total with %s participants.' % (after - before, after, participants))
 
 
 class AnonymousUser(AnonymousUserMixin):
