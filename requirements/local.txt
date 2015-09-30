@@ -25,9 +25,10 @@ flask==0.10.1
 forgerypy==0.1
 html5lib==0.9999999       # via bleach
 httpie==0.9.2
+ipdb==0.8.1
 ipykernel==4.0.3          # via ipywidgets, jupyter, jupyter-console, notebook, qtconsole
 ipython-genutils==0.1.0   # via nbformat, notebook, traitlets
-ipython==4.0.0            # via ipykernel, ipywidgets, jupyter-console
+ipython==4.0.0            # via ipdb, ipykernel, ipywidgets, jupyter-console
 ipywidgets==4.0.3         # via jupyter
 itsdangerous==0.24
 jinja2==2.8               # via flask, nbconvert, notebook
