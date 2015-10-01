@@ -51,7 +51,7 @@ class Role(db.Model):
             role.permissions, role.default = role_data
             db.session.add(role)
         db.session.commit()
-        print('Roles inserted.')
+        # print('Roles inserted.')
 
 
 class Follow(db.Model):

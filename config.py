@@ -44,6 +44,8 @@ class DevelopmentConfig(Config):
 class TestingConfig(Config):
     TESTING = True
     SQLALCHEMY_DATABASE_URI = 'sqlite:///%s' % (ROOT_DIR / 'db-test.sqlite')
+    WTF_CSRF_ENABLED = False
+    SERVER_NAME = 'localhost'
 
 
 class ProductionConfig(Config):
