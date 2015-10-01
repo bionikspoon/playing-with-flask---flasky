@@ -1,12 +1,16 @@
 Flask
 Flask-Bootstrap
+Flask-HTTPAuth
 Flask-Login
 Flask-Mail
 Flask-Migrate
 Flask-Moment
+Flask-PageDown
 Flask-Script
 Flask-SQLAlchemy
 Flask-WTF
+markdown
+bleach
 
 itsdangerous
 Werkzeug

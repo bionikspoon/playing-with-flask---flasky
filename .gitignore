@@ -149,4 +149,8 @@ $RECYCLE.BIN/
 
 ### JetBrains template
 .idea/
+
+### Custom
 *.sqlite
+*.sqlite-journal
+tmp/

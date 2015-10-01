@@ -5,26 +5,31 @@
 #    pip-compile production.in
 #
 alembic==0.8.2            # via flask-migrate
+bleach==1.4.2
 blinker==1.4              # via flask-mail
 click==5.1                # via pip-tools
 dominate==2.1.16          # via flask-bootstrap
 first==2.0.1              # via pip-tools
 flask-bootstrap==3.3.5.6
-flask-login==0.3.0
+flask-httpauth==2.7.0
+flask-login==0.3.1
 flask-mail==0.9.1
 flask-migrate==1.6.0
 flask-moment==0.5.1
+flask-pagedown==0.2.1
 flask-script==2.0.5
 flask-sqlalchemy==2.0
 flask-wtf==0.12
 flask==0.10.1
+html5lib==0.9999999       # via bleach
 itsdangerous==0.24
 jinja2==2.8               # via flask
 mako==1.0.2               # via alembic
+markdown==2.6.2
 markupsafe==0.23          # via jinja2, mako
 pip-tools==1.1.4
 python-editor==0.4        # via alembic
-six==1.9.0                # via pip-tools
+six==1.9.0                # via bleach, html5lib, pip-tools
 sqlalchemy==1.0.8         # via alembic, flask-sqlalchemy
 werkzeug==0.10.4
-wtforms==2.0.2            # via flask-wtf
+wtforms==2.0.2            # via flask-pagedown, flask-wtf

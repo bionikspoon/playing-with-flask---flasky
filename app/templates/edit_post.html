@@ -1,14 +1,14 @@
 {% extends 'base.html' %}
+{% import 'bootstrap/wtf.html' as wtf %}
 
 {% block title %}
-   {{ super() }} - User - {{ name }}
+   {{ super() }} - Edit Post
 {% endblock title %}
 
 {% block page_header %}
-   <h1>Hello, {{ name }}</h1>
+   Edit Post
 {% endblock page_header %}
 
-
 {% block page_content %}
+   {{ wtf.quick_form(form) }}
 {% endblock page_content %}
-

@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% import 'bootstrap/wtf.html' as wtf %}
+{% import '_macros.html' as macros %}
 
 {% block title %}
    {{ super() }} - Index
@@ -10,15 +11,24 @@
 {% endblock page_header %}
 
 {% block page_content %}
-   {% if known %}
-      <p>Happy to see you again!</p>
-   {% else %}
-      <p>Pleased to meet you.</p>
+   {% if current_user.can(Permission.WRITE_ARTICLES) %}
+      {{ wtf.quick_form(form) }}
    {% endif %}
-   <p>Your `User-Agent` is {{ user_agent }}</p>
-   <p>The local date and time is {{ moment(current_time).format('LLL') }}</p>
-   <p>That was {{ moment(current_time).fromNow(refresh=True) }}</p>
-   {{ wtf.quick_form(form) }}
+   <div class="posts--tabs">
+      <ul class="nav nav-tabs">
+         <li {% if not show_followed %}class="active"{% endif %}>
+            <a href="{{ url_for('.show_all') }}">All</a>
+         </li>
+         {% if current_user.is_authenticated %}
+            <li {% if show_followed %}class="active"{% endif %}>
+               <a href="{{ url_for('.show_followed') }}">Followers</a>
+            </li>
+         {% endif %}
+      </ul>
+      {% include '_posts.html' %}
+   </div>
 
-
+   <div class="pagination">
+      {{ macros.pagination_widget(pagination, '.index') }}
+   </div>
 {% endblock page_content %}

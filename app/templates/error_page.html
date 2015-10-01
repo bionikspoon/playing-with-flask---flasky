@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block title %}
+   {{ super() }} - {{ code }}: {{ name }}
+{% endblock title %}
+
+{% block page_header %}
+   <h1>{{ code }}:
+      <small>{{ name }}</small>
+   </h1>
+   <p>{{ description }}</p>
+{% endblock page_header %}
