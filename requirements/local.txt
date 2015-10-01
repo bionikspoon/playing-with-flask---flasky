@@ -8,6 +8,7 @@ alembic==0.8.2            # via flask-migrate
 bleach==1.4.2
 blinker==1.4              # via flask-mail
 click==5.1                # via pip-tools
+coverage==4.0
 decorator==4.0.4          # via ipython, traitlets
 dominate==2.1.16          # via flask-bootstrap
 first==2.0.1              # via pip-tools
