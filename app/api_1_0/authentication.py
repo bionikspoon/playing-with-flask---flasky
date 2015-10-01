@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 # coding=utf-8
+
 from flask import g, jsonify
 from flask.ext.httpauth import HTTPBasicAuth
+
 from . import api
 from .errors import unauthorized, forbidden
 from ..models import AnonymousUser, User
